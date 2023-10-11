@@ -31,7 +31,7 @@ print("Extracted data")
 
 
 # Filtering top n movies
-n_movies = 500
+n_movies = 250
 top_n_movies = ratings['movieId'].value_counts()[:n_movies].index.tolist()
 ratings['top_n'] = ratings.movieId.apply(lambda id: id in top_n_movies)
 ratings = ratings[ratings['top_n'] == True].drop(['top_n'], axis=1)
@@ -87,7 +87,7 @@ test_loader = DataLoader(test_set, batch_size=bs, shuffle=True)
 # Setting model parameters
 learning_rate = 1e-3
 weight_decay = 3e-4
-n_factors = 50
+n_factors = 15
 
 # Initializing model
 embedding_net = EmbeddingNet(n_users, n_movies, n_factors)
@@ -153,10 +153,10 @@ for i in range(n_epochs):
 
     embedding_state = {"state_dict": embedding_net.state_dict()}
     model_name = f"Embedding_weights_Epoch{i+1}.pth"
-    torch.save(embedding_state, model_binaries_path, model_name)
+    torch.save(embedding_state, os.path.join(model_binaries_path, model_name))
 
 embedding_state = {"state_dict": embedding_net.state_dict()}
 model_name = f"Embedding_weights_Final.pth"
-torch.save(embedding_state, model_binaries_path, model_name)
+torch.save(embedding_state, os.path.join(model_binaries_path, model_name))
 utils.logger(log_file, f"Completed training in {(time.time()-ts)/60:.2f}mins")
 print(f"Completed training in {(time.time()-ts)/60:.2f}mins")
