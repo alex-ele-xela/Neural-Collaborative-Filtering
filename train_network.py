@@ -153,10 +153,10 @@ for i in range(n_epochs):
 
     embedding_state = {"state_dict": embedding_net.state_dict()}
     model_name = f"Embedding_weights_Epoch{i+1}.pth"
-    torch.save(embedding_state, model_binaries_path, model_name)
+    torch.save(embedding_state, os.path.join(model_binaries_path, model_name))
 
 embedding_state = {"state_dict": embedding_net.state_dict()}
 model_name = f"Embedding_weights_Final.pth"
-torch.save(embedding_state, model_binaries_path, model_name)
+torch.save(embedding_state, os.path.join(model_binaries_path, model_name))
 utils.logger(log_file, f"Completed training in {(time.time()-ts)/60:.2f}mins")
 print(f"Completed training in {(time.time()-ts)/60:.2f}mins")
