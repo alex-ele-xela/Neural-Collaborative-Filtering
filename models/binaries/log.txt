@@ -11,19 +11,16 @@ EmbeddingNet(
   (movie_bias): Embedding(200, 1)
 )
 
-Epoch 1 | Train_loss: 1.1684261221943275 | Val_loss: 0.8418806532102583 | Time_elapsed=23.78min
-Epoch 2 | Train_loss: 0.8413093350268394 | Val_loss: 0.8418638509970804 | Time_elapsed=52.33min
-
-Extracted data
-Filtered top 200 movies
-Labeled Movies and Users
-Created and split Tensor dataset
-
-Intialized model
-EmbeddingNet(
-  (user_factors): Embedding(160543, 10)
-  (user_bias): Embedding(160543, 1)
-  (movie_factors): Embedding(200, 10)
-  (movie_bias): Embedding(200, 1)
-)
-
+Epoch 1 | Train_loss: 1.1641382391651613 | Val_loss: 0.843250803508626 | Time_elapsed=11.45min
+Epoch 2 | Train_loss: 0.840916396461818 | Val_loss: 0.8431643865190299 | Time_elapsed=23.04min
+Epoch 3 | Train_loss: 0.8408214260916439 | Val_loss: 0.8430429180031843 | Time_elapsed=34.52min
+Epoch 4 | Train_loss: 0.8406987946004415 | Val_loss: 0.8431462826173488 | Time_elapsed=46.07min
+Epoch 5 | Train_loss: 0.8406403099521434 | Val_loss: 0.8429669960061731 | Time_elapsed=57.68min
+Epoch 6 | Train_loss: 0.8405673833666377 | Val_loss: 0.8426567028396404 | Time_elapsed=69.26min
+Epoch 7 | Train_loss: 0.8404604775813129 | Val_loss: 0.8426983047572353 | Time_elapsed=80.96min
+Epoch 8 | Train_loss: 0.840432268744598 | Val_loss: 0.8424890261632297 | Time_elapsed=92.63min
+Epoch 9 | Train_loss: 0.8403866406678153 | Val_loss: 0.8426005772278133 | Time_elapsed=104.12min
+Epoch 10 | Train_loss: 0.8403001152875805 | Val_loss: 0.8426228100561852 | Time_elapsed=115.60min
+Epoch 11 | Train_loss: 0.8402184676978375 | Val_loss: 0.8426749460092658 | Time_elapsed=127.09min
+Epoch 12 | Train_loss: 0.8402611126776853 | Val_loss: 0.8426954620987559 | Time_elapsed=138.57min
+Epoch 13 | Train_loss: 0.8402972277365865 | Val_loss: 0.842392219299103 | Time_elapsed=150.08min
