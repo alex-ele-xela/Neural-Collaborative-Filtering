@@ -4,6 +4,7 @@ import pandas as pd
 import time
 
 import copy
+import json
 from tqdm import tqdm
 import torch
 import torch.nn as nn
@@ -30,14 +31,18 @@ utils.logger(log_file, f"Extracted data\n")
 print("Extracted data")
 
 
+# Pulling training config
+config = dict() 
+config = json.load(open('training_config.json'))
+
+
 # Filtering top n movies
-n_movies = 250
-top_n_movies = ratings['movieId'].value_counts()[:n_movies].index.tolist()
+top_n_movies = ratings['movieId'].value_counts()[:config['n_movies']].index.tolist()
 ratings['top_n'] = ratings.movieId.apply(lambda id: id in top_n_movies)
 ratings = ratings[ratings['top_n'] == True].drop(['top_n'], axis=1)
 
-utils.logger(log_file, f"Filtered top {n_movies} movies\n")
-print(f"Filtered top {n_movies} movies")
+utils.logger(log_file, f"Filtered top {config['n_movies']} movies\n")
+print(f"Filtered top {config['n_movies']} movies")
 
 
 # Labelling the users and movies manually
@@ -66,8 +71,7 @@ del features, target
 
 # Splitting dataset into train and test sets
 total_obs = len(dataset)
-test_size = 0.2
-test_obs = int(total_obs * test_size)
+test_obs = int(total_obs * config['test_size'])
 train_obs = total_obs - test_obs
 split = [train_obs, test_obs]
 
@@ -79,20 +83,14 @@ print("Created and split Tensor dataset")
 
 
 # Creating Data Loader
-bs = 100
-train_loader = DataLoader(train_set, batch_size=bs, shuffle=True)
-test_loader = DataLoader(test_set, batch_size=bs, shuffle=True)
+train_loader = DataLoader(train_set, batch_size=config['batch_size'], shuffle=True)
+test_loader = DataLoader(test_set, batch_size=config['batch_size'], shuffle=True)
 
-
-# Setting model parameters
-learning_rate = 1e-3
-weight_decay = 3e-4
-n_factors = 15
 
 # Initializing model
-embedding_net = EmbeddingNet(n_users, n_movies, n_factors)
+embedding_net = EmbeddingNet(n_users, n_movies, config['n_factors'])
 criterion = nn.MSELoss()
-optimizer = optim.Adam(embedding_net.parameters(), lr=learning_rate, weight_decay=weight_decay)
+optimizer = optim.Adam(embedding_net.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
 scheduler = optim.lr_scheduler.LinearLR(optimizer, start_factor=0.5, total_iters=10)
 
 utils.logger(log_file, f"\nIntialized model\n{str(embedding_net)}\n\n")
@@ -107,10 +105,9 @@ lr_history = []
 # storing starting time
 ts = time.time()
 
-n_epochs = 30
 best_loss = np.inf
 best_weights = None
-for i in range(n_epochs):
+for i in range(config['n_epochs']):
     train_loss = 0
     n_batches = 0
 
@@ -151,11 +148,21 @@ for i in range(n_epochs):
     print(text)
     utils.logger(log_file, text+"\n")
 
-    embedding_state = {"state_dict": embedding_net.state_dict()}
+    embedding_state = {"state_dict": embedding_net.state_dict(),
+                       "n_users": n_users,
+                       "n_movies": n_movies,
+                       "n_factors": config['n_factors'],
+                       "userLabel_to_Id": userLabel_to_Id,
+                       "movieLabel_to_Id": movieLabel_to_Id}
     model_name = f"Embedding_weights_Epoch{i+1}.pth"
     torch.save(embedding_state, os.path.join(model_binaries_path, model_name))
 
-embedding_state = {"state_dict": embedding_net.state_dict()}
+embedding_state = {"state_dict": embedding_net.state_dict(),
+                   "n_users": n_users,
+                   "n_movies": n_movies,
+                   "n_factors": config['n_factors'],
+                   "userLabel_to_Id": userLabel_to_Id,
+                   "movieLabel_to_Id": movieLabel_to_Id}
 model_name = f"Embedding_weights_Final.pth"
 torch.save(embedding_state, os.path.join(model_binaries_path, model_name))
 utils.logger(log_file, f"Completed training in {(time.time()-ts)/60:.2f}mins")

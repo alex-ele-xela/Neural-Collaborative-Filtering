@@ -1,0 +1,29 @@
+Extracted data
+Filtered top 200 movies
+Labeled Movies and Users
+Created and split Tensor dataset
+
+Intialized model
+EmbeddingNet(
+  (user_factors): Embedding(160543, 10)
+  (user_bias): Embedding(160543, 1)
+  (movie_factors): Embedding(200, 10)
+  (movie_bias): Embedding(200, 1)
+)
+
+Epoch 1 | Train_loss: 1.1684261221943275 | Val_loss: 0.8418806532102583 | Time_elapsed=23.78min
+Epoch 2 | Train_loss: 0.8413093350268394 | Val_loss: 0.8418638509970804 | Time_elapsed=52.33min
+
+Extracted data
+Filtered top 200 movies
+Labeled Movies and Users
+Created and split Tensor dataset
+
+Intialized model
+EmbeddingNet(
+  (user_factors): Embedding(160543, 10)
+  (user_bias): Embedding(160543, 1)
+  (movie_factors): Embedding(200, 10)
+  (movie_bias): Embedding(200, 1)
+)
+
