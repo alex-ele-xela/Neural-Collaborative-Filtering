@@ -10,7 +10,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-import torch.utils.data as data_utils
 
 from models.embedding_net import EmbeddingNet
 from utils import utils
@@ -37,15 +36,13 @@ config = json.load(open('training_config.json'))
 
 
 # Filtering top n movies
-top_n_movies = ratings['movieId'].value_counts()[:config['n_movies']].index.tolist()
-ratings['top_n'] = ratings.movieId.apply(lambda id: id in top_n_movies)
-ratings = ratings[ratings['top_n'] == True].drop(['top_n'], axis=1)
+ratings = utils.filter_movies(ratings, config['n_movies'])
 
 utils.logger(log_file, f"Filtered top {config['n_movies']} movies\n")
 print(f"Filtered top {config['n_movies']} movies")
 
 
-# Labelling the users and movies manually
+# Labelling the users and movies
 userId_to_Label, userLabel_to_Id = utils.get_labels(ratings.userId)
 movieId_to_Label, movieLabel_to_Id = utils.get_labels(ratings.movieId)
 
@@ -61,22 +58,8 @@ n_users = len(ratings["userLabel"].unique())
 n_movies = len(ratings["movieLabel"].unique())
 
 
-# Creating tensor dataset
-target = torch.tensor(ratings['rating'].values)[..., np.newaxis]
-features = torch.tensor(ratings[["userLabel", "movieLabel"]].values) 
-
-dataset = data_utils.TensorDataset(features, target)
-del features, target
-
-
-# Splitting dataset into train and test sets
-total_obs = len(dataset)
-test_obs = int(total_obs * config['test_size'])
-train_obs = total_obs - test_obs
-split = [train_obs, test_obs]
-
-train_set, test_set = data_utils.random_split(dataset, split)
-len(train_set), len(test_set)
+# Creating tensor train-test dataset
+train_set, test_set = utils.train_test_split(ratings, config['test_size'])
 
 utils.logger(log_file, f"Created and split Tensor dataset\n")
 print("Created and split Tensor dataset")
@@ -96,6 +79,7 @@ scheduler = optim.lr_scheduler.LinearLR(optimizer, start_factor=0.5, total_iters
 utils.logger(log_file, f"\nIntialized model\n{str(embedding_net)}\n\n")
 print(f"Initialized model\n{str(embedding_net)}")
 
+###########################################################################################################################
 
 # Training
 train_history = []
@@ -148,22 +132,12 @@ for i in range(config['n_epochs']):
     print(text)
     utils.logger(log_file, text+"\n")
 
-    embedding_state = {"state_dict": embedding_net.state_dict(),
-                       "n_users": n_users,
-                       "n_movies": n_movies,
-                       "n_factors": config['n_factors'],
-                       "userLabel_to_Id": userLabel_to_Id,
-                       "movieLabel_to_Id": movieLabel_to_Id}
     model_name = f"Embedding_weights_Epoch{i+1}.pth"
-    torch.save(embedding_state, os.path.join(model_binaries_path, model_name))
+    utils.save_model(embedding_net.state_dict(), n_users, n_movies, config['n_factors'], userLabel_to_Id, movieLabel_to_Id, model_name, model_binaries_path)
 
-embedding_state = {"state_dict": embedding_net.state_dict(),
-                   "n_users": n_users,
-                   "n_movies": n_movies,
-                   "n_factors": config['n_factors'],
-                   "userLabel_to_Id": userLabel_to_Id,
-                   "movieLabel_to_Id": movieLabel_to_Id}
+# Saving final weights
 model_name = f"Embedding_weights_Final.pth"
-torch.save(embedding_state, os.path.join(model_binaries_path, model_name))
+utils.save_model(embedding_net.state_dict(), n_users, n_movies, config['n_factors'], userLabel_to_Id, movieLabel_to_Id, model_name, model_binaries_path)
+
 utils.logger(log_file, f"Completed training in {(time.time()-ts)/60:.2f}mins")
 print(f"Completed training in {(time.time()-ts)/60:.2f}mins")
