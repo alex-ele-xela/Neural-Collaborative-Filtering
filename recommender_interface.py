@@ -187,4 +187,4 @@ with gr.Blocks() as app:
 
 
 app.title = "Neural Collaborative Filtering"
-app.launch()
+app.launch(inbrowser=True)
